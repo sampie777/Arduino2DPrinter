@@ -59,6 +59,7 @@ void StepperMotor::step(uint8_t force) {
             if (currentStep >= getMaxStep()) {
                 Serial.println("[StepperMotor] Max step reached");
                 stopAllCoils();
+                announceTargetReached();
                 return;
             }
         } else {
@@ -71,6 +72,7 @@ void StepperMotor::step(uint8_t force) {
             if (currentStep == 0) {
                 Serial.println("[StepperMotor] Min step reached");
                 stopAllCoils();
+                announceTargetReached();
                 return;
             }
         }
@@ -82,6 +84,15 @@ void StepperMotor::step(uint8_t force) {
     if (stepDirection == SM_STEP_DIRECTION_UP && currentStep > (getMaxStep() / 2) && endpointReached()) {
         findMaxPosition();
     }
+
+    if (currentStep == targetStep) {
+        announceTargetReached();
+    }
+}
+
+void StepperMotor::announceTargetReached() {
+    Serial.print(coilA);
+    Serial.println(": target reached");
 }
 
 int8_t StepperMotor::getStepDirectionForTargetStep() const {

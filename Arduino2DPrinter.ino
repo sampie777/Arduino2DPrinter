@@ -52,31 +52,48 @@ void processSerialInput() {
         return;
     }
 
-    char buffer[8] = {0};
-    uint8_t length = Serial.readBytesUntil('\n', buffer, 8);
+    char buffer[10] = {0};
+    uint8_t length = Serial.readBytesUntil('\n', buffer, 10);
     flushSerialReadBuffer();
 
     if (length == 0) {
         return;
     }
 
-    if (length == 8) {
-        if (buffer[0] != 'x' || buffer[4] != 'y') {
-            Serial.println("Invalid coordinates. Expected value: 'x000y000'");
+    if (length == 10) {
+        if (buffer[0] != 'x' || buffer[5] != 'y') {
+            Serial.print("Invalid coordinates. Expected value: 'x0000y0000', but got: ");
+            Serial.write(buffer);
+            Serial.println("");
             return;
         }
 
-        stepperMotorX.targetStep = mmToSteps(&stepperMotorX, getNumberFromSerialBuffer(buffer, 1, 3));
-        stepperMotorY.targetStep = mmToSteps(&stepperMotorY, getNumberFromSerialBuffer(buffer, 5, 3));
+        float value = getNumberFromSerialBuffer(buffer, 1, 4) / 10.0;
+        stepperMotorX.targetStep = mmToSteps(&stepperMotorX, value);
+
+        value = getNumberFromSerialBuffer(buffer, 6, 4) / 10.0;
+        stepperMotorY.targetStep = mmToSteps(&stepperMotorY, value);
 
         Serial.println("New target steps:");
         Serial.print("\tX = ");
         Serial.println(stepperMotorX.targetStep, DEC);
         Serial.print("\tY = ");
         Serial.println(stepperMotorY.targetStep, DEC);
+
+        if (stepperMotorX.getCurrentStep() == stepperMotorX.targetStep) {
+            stepperMotorX.announceTargetReached();
+        }
+        if (stepperMotorY.getCurrentStep() == stepperMotorY.targetStep) {
+            stepperMotorY.announceTargetReached();
+        }
+
+        // Disable sweep
+        stepperMotorX.sweep = false;
+        stepperMotorY.sweep = false;
+        return;
     }
 
-    if (length == 1 && (buffer[0] < 48 || buffer[0] > 57)) {
+    if (buffer[0] < 48 || buffer[0] > 57) {
         if (buffer[0] == 'r') {
             Serial.println("Reset position parameters");
             stepperMotorX.resetPositionValues();
@@ -85,8 +102,15 @@ void processSerialInput() {
         }
         if (buffer[0] == 's') {
             Serial.print("Toggling sweep mode ");
-            stepperMotorX.sweep = !stepperMotorX.sweep;
-            stepperMotorY.sweep = !stepperMotorY.sweep;
+
+            if (length > 1) {
+                uint8_t sweep = getNumberFromSerialBuffer(buffer, 1, 1);
+                stepperMotorX.sweep = sweep;
+                stepperMotorY.sweep = sweep;
+            } else {
+                stepperMotorX.sweep = !stepperMotorX.sweep;
+                stepperMotorY.sweep = !stepperMotorY.sweep;
+            }
 
             if (stepperMotorX.sweep) {
                 Serial.println("on");
@@ -107,7 +131,9 @@ void processSerialInput() {
             return;
         }
 
-        Serial.println("Invalid input");
+        Serial.print("Invalid input: ");
+        Serial.write(buffer);
+        Serial.println("");
         return;
     }
 //
@@ -150,33 +176,16 @@ void handleActionButton() {
         return;
     }
 
+    Serial.println("Ejecting X surface");
+
     digitalWrite(LED_BUILTIN, HIGH);
 
     stepperMotorX.targetStep = stepperMotorX.getMaxStep() + 2000;
 
-    // Eject X axis
-    while (stepperMotorX.getCurrentStep() < stepperMotorX.getMaxStep()) {
-        stepperMotorX.step();
-    }
-
-    // Wait till user confirms
-    while (digitalRead(ACTION_BUTTON_1)) {
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(100);
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(900);
-    }
-
-    // Give user some time to handle
-    delay(4000);
-    digitalWrite(LED_BUILTIN, HIGH);
-
-    // Throw it out
+    // Ejecet X axis
     while (stepperMotorX.getCurrentStep() < stepperMotorX.targetStep) {
         stepperMotorX.step(true);
     }
-
-    digitalWrite(LED_BUILTIN, LOW);
 
     // Do nothing
     while (true) {
@@ -201,6 +210,7 @@ void setup() {
 
     stepperMotorX.findResetPosition();
     stepperMotorY.findResetPosition();
+    Serial.println("Boot done.");
 }
 
 void loop() {

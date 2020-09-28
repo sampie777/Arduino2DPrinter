@@ -8,7 +8,7 @@
 #include <Arduino.h>
 #include "StepperMotor.h"
 
-long mmToSteps(StepperMotor *stpMotor, long value) {
+long mmToSteps(StepperMotor *stpMotor, float value) {
     return value * stpMotor->getStepsPerMm();
 }
 

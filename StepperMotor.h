@@ -50,6 +50,8 @@ public:
 
     virtual float getStepsPerMm() const { return maxStep / maxDistance; }
 
+    void announceTargetReached();
+
 protected:
     uint8_t coilA, coilB, coilC, coilD, endpointSensor;
     uint16_t currentStep = 0;
