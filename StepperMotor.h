@@ -48,11 +48,14 @@ public:
 
     virtual uint16_t getStepDelay() const { return stepDelay; }
 
+    virtual float getStepsPerMm() const { return maxStep / maxDistance; }
+
 protected:
     uint8_t coilA, coilB, coilC, coilD, endpointSensor;
     uint16_t currentStep = 0;
     uint16_t maxStep = 14000;
     uint16_t stepDelay = 2135;
+    float maxDistance = 108.0;
 
     int8_t getStepDirectionForTargetStep() const;
 

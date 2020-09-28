@@ -2,6 +2,7 @@
 #include "StepperMotor.h"
 #include "pins.h"
 #include "StepperMotorBipolar.h"
+#include "conversion.h"
 
 StepperMotor stepperMotorX(SM_X_COIL_A,
                            SM_X_COIL_B,
@@ -16,8 +17,8 @@ StepperMotorBipolar stepperMotorY(SM_Y_COIL_A,
                                   SM_Y_ENDPOINT_SENSOR_PIN);
 
 
-void sweepOneTime(StepperMotor *stpMotor) {
-    stpMotor->step();
+void handleSweep(StepperMotor *stpMotor) {
+    if (!stpMotor->sweep) return;
 
     if (stpMotor->getCurrentStep() >= stpMotor->getMaxStep()) {
         Serial.println("[Main] Sweep down");
@@ -36,17 +37,43 @@ void flushSerialReadBuffer() {
     }
 }
 
+long getNumberFromSerialBuffer(const char *buffer, uint8_t startIndex, uint8_t length) {
+    long value = 0;
+    for (unsigned int i = startIndex; i < startIndex + length; i++) {
+        uint16_t realValue = (uint8_t) buffer[i] - 48;
+        uint8_t factor = (startIndex + length) - 1 - i;
+        value += realValue * round(pow(10, factor));
+    }
+    return value;
+}
+
 void processSerialInput() {
     if (!Serial.available()) {
         return;
     }
 
-    char buffer[6] = {0};
-    uint8_t length = Serial.readBytesUntil('\n', buffer, 6);
+    char buffer[8] = {0};
+    uint8_t length = Serial.readBytesUntil('\n', buffer, 8);
     flushSerialReadBuffer();
 
     if (length == 0) {
         return;
+    }
+
+    if (length == 8) {
+        if (buffer[0] != 'x' || buffer[4] != 'y') {
+            Serial.println("Invalid coordinates. Expected value: 'x000y000'");
+            return;
+        }
+
+        stepperMotorX.targetStep = mmToSteps(&stepperMotorX, getNumberFromSerialBuffer(buffer, 1, 3));
+        stepperMotorY.targetStep = mmToSteps(&stepperMotorY, getNumberFromSerialBuffer(buffer, 5, 3));
+
+        Serial.println("New target steps:");
+        Serial.print("\tX = ");
+        Serial.println(stepperMotorX.targetStep, DEC);
+        Serial.print("\tY = ");
+        Serial.println(stepperMotorY.targetStep, DEC);
     }
 
     if (length == 1 && (buffer[0] < 48 || buffer[0] > 57)) {
@@ -83,18 +110,18 @@ void processSerialInput() {
         Serial.println("Invalid input");
         return;
     }
-
-    uint16_t newTargetStep = 0;
-    for (uint8_t i = 0; i < length; i++) {
-        uint16_t realValue = (uint8_t) buffer[i] - 48;
-        uint8_t factor = length - 1 - i;
-        newTargetStep += realValue * round(pow(10, factor));
-    }
-    stepperMotorX.targetStep = newTargetStep;
-    stepperMotorY.targetStep = newTargetStep;
-
-    Serial.print("New targetStep value: ");
-    Serial.println(stepperMotorX.targetStep, DEC);
+//
+//    uint16_t newTargetStep = 0;
+//    for (uint8_t i = 0; i < length; i++) {
+//        uint16_t realValue = (uint8_t) buffer[i] - 48;
+//        uint8_t factor = length - 1 - i;
+//        newTargetStep += realValue * round(pow(10, factor));
+//    }
+//    stepperMotorX.targetStep = newTargetStep;
+//    stepperMotorY.targetStep = newTargetStep;
+//
+//    Serial.print("New targetStep value: ");
+//    Serial.println(stepperMotorX.targetStep, DEC);
 }
 
 void printSystemInfo() {
@@ -180,8 +207,11 @@ void loop() {
     processSerialInput();
     handleActionButton();
 
-    sweepOneTime(&stepperMotorX);
-    sweepOneTime(&stepperMotorY);
+    stepperMotorX.step();
+    stepperMotorY.step();
+
+    handleSweep(&stepperMotorX);
+    handleSweep(&stepperMotorY);
 
     stepperMotorY.update();
 }
