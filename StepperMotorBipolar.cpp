@@ -34,15 +34,6 @@ void StepperMotorBipolar::blindStep(int8_t direction, uint16_t stepDelay) {
     digitalWrite(coilD, currentStepCoil & 0x08U);
 }
 
-void StepperMotorBipolar::update() {
-    if (lastStepTime + stepDelay < micros()) {
-        digitalWrite(coilA, LOW);
-        digitalWrite(coilB, LOW);
-        digitalWrite(coilC, LOW);
-        digitalWrite(coilD, LOW);
-    }
-}
-
 void StepperMotorBipolar::step() {
     if (lastStepTime + stepDelay > micros()) {
         // Wait till last step is complete

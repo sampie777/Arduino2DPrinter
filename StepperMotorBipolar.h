@@ -14,16 +14,16 @@ public:
                         uint8_t coilB,
                         uint8_t coilC,
                         uint8_t coilD,
-                        uint8_t endpointSensor) : StepperMotor(coilA,
-                                                               coilB,
-                                                               coilC,
-                                                               coilD,
-                                                               endpointSensor) {}
+                        uint8_t endpointSensor,
+                        char name) : StepperMotor(coilA,
+                                                  coilB,
+                                                  coilC,
+                                                  coilD,
+                                                  endpointSensor,
+                                                  name) {}
 
 
     void step() override;
-
-    void update();
 
     uint16_t getMaxStep() const override { return maxStep; }
 

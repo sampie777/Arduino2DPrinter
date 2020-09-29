@@ -16,6 +16,18 @@ bool StepperMotor::endpointReached() const {
     return !digitalRead(endpointSensor);
 }
 
+void StepperMotor::printWithIdent(const char c[]){
+    Serial.print("[StepperMotor] ");
+    Serial.print(name);
+    Serial.print(": ");
+    Serial.print(c);
+}
+
+void StepperMotor::printlnWithIdent(const char c[]){
+    printWithIdent(c);
+    Serial.println();
+}
+
 void StepperMotor::blindStep(int8_t direction, uint16_t stepDelay) {
     static uint8_t currentStepCoil = 1;
 
@@ -57,7 +69,7 @@ void StepperMotor::step(uint8_t force) {
     if (!force) {
         if (stepDirection == SM_STEP_DIRECTION_UP) {
             if (currentStep >= getMaxStep()) {
-                Serial.println("[StepperMotor] Max step reached");
+                printlnWithIdent("Max step reached");
                 stopAllCoils();
                 announceTargetReached();
                 return;
@@ -65,12 +77,12 @@ void StepperMotor::step(uint8_t force) {
         } else {
             // Prevent from pushing through endpoint
             if (endpointReached()) {
-                Serial.println("[StepperMotor] Prevent pushing through endpoint!");
+                printlnWithIdent("Prevent pushing through endpoint!");
                 currentStep = 0;
             }
 
             if (currentStep == 0) {
-                Serial.println("[StepperMotor] Min step reached");
+                printlnWithIdent("Min step reached");
                 stopAllCoils();
                 announceTargetReached();
                 return;
@@ -91,8 +103,7 @@ void StepperMotor::step(uint8_t force) {
 }
 
 void StepperMotor::announceTargetReached() {
-    Serial.print(coilA);
-    Serial.println(": target reached");
+    printlnWithIdent("Target reached");
 }
 
 int8_t StepperMotor::getStepDirectionForTargetStep() const {
@@ -107,7 +118,7 @@ void StepperMotor::stopAllCoils() const {
 }
 
 void StepperMotor::findResetPosition() {
-    Serial.println("[StepperMotor] Finding reset position");
+    printlnWithIdent("Finding reset position");
 
     // Move towards endpoint
     while (!endpointReached()) {
@@ -127,7 +138,7 @@ void StepperMotor::findResetPosition() {
 }
 
 void StepperMotor::findMaxPosition() {
-    Serial.println("[StepperMotor] Finding max position");
+    printlnWithIdent("Finding max position");
 
     // Move towards endpoint
     while (!endpointReached()) {
@@ -147,12 +158,12 @@ void StepperMotor::findMaxPosition() {
     stopAllCoils();
     setMaxStep(currentStep);
 
-    Serial.print("[StepperMotor] New max position: ");
+    printWithIdent("New max position: ");
     Serial.println(getMaxStep());
 }
 
 void StepperMotor::resetPositionValues() {
-    Serial.println("[StepperMotor] Resetting position values");
+    printlnWithIdent("Resetting position values");
     targetStep = 0;
     currentStep = 0;
 }
