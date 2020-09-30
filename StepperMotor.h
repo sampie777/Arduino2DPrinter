@@ -18,12 +18,19 @@ public:
                  uint8_t coilC,
                  uint8_t coilD,
                  uint8_t endpointSensor,
-                 char name) : coilA(coilA),
-                              coilB(coilB),
-                              coilC(coilC),
-                              coilD(coilD),
-                              endpointSensor(endpointSensor),
-                              name(name) {}
+                 char name,
+                 uint16_t maxStep,
+                 uint16_t stepDelay,
+                 float maxDistance
+    ) : coilA(coilA),
+        coilB(coilB),
+        coilC(coilC),
+        coilD(coilD),
+        endpointSensor(endpointSensor),
+        name(name),
+        maxStep(maxStep),
+        stepDelay(stepDelay),
+        maxDistance(maxDistance) {}
 
     bool sweep = true;
     uint16_t targetStep = 0;
@@ -64,9 +71,8 @@ public:
 
 protected:
     uint16_t currentStep = 0;
-    uint16_t maxStep = 14000;
-    uint16_t stepDelay = 2135;
-    float maxDistance = 108.0;
+    uint16_t maxStep, stepDelay;
+    float maxDistance;
 
     int8_t getStepDirectionForTargetStep() const;
 

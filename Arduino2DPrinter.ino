@@ -9,21 +9,24 @@ StepperMotor stepperMotorX(SM_X_COIL_A,
                            SM_X_COIL_C,
                            SM_X_COIL_D,
                            SM_X_ENDPOINT_SENSOR_PIN,
-                           'X');
+                           'X',
+                           14000, 2135, 108.0);
 
 StepperMotor stepperMotorY(SM_Y_COIL_A,
                            SM_Y_COIL_B,
                            SM_Y_COIL_C,
                            SM_Y_COIL_D,
                            SM_Y_ENDPOINT_SENSOR_PIN,
-                           'Y');
+                           'Y',
+                           14000, 2135, 108.0);
 
 StepperMotorBipolar stepperMotorZ(SM_Z_COIL_A,
                                   SM_Z_COIL_B,
                                   SM_Z_COIL_C,
                                   SM_Z_COIL_D,
                                   SM_Z_ENDPOINT_SENSOR_PIN,
-                                  'Z');
+                                  'Z',
+                                  140, 15000, 32.0);
 
 
 void handleSweep(StepperMotor *stpMotor) {

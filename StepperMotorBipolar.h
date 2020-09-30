@@ -15,12 +15,18 @@ public:
                         uint8_t coilC,
                         uint8_t coilD,
                         uint8_t endpointSensor,
-                        char name) : StepperMotor(coilA,
-                                                  coilB,
-                                                  coilC,
-                                                  coilD,
-                                                  endpointSensor,
-                                                  name) {}
+                        char name,
+                        uint16_t maxStep,
+                        uint16_t stepDelay,
+                        float maxDistance) : StepperMotor(coilA,
+                                                          coilB,
+                                                          coilC,
+                                                          coilD,
+                                                          endpointSensor,
+                                                          name,
+                                                          maxStep,
+                                                          stepDelay,
+                                                          maxDistance) {}
 
 
     void step() override;
@@ -31,11 +37,7 @@ public:
 
     float getStepsPerMm() const override { return maxStep / maxDistance; }
 
-private:
-    uint16_t maxStep = 145;
-    uint16_t stepDelay = 15000;
-    float maxDistance = 32.0;
-
+protected:
     unsigned long lastStepTime = 0;
 
     void blindStep(int8_t direction, uint16_t stepDelay) override;
