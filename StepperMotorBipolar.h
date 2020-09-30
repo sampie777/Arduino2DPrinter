@@ -32,9 +32,9 @@ public:
     float getStepsPerMm() const override { return maxStep / maxDistance; }
 
 private:
-    uint16_t maxStep = 160;
-    uint16_t stepDelay = 20000;
-    float maxDistance = 36.1;
+    uint16_t maxStep = 145;
+    uint16_t stepDelay = 15000;
+    float maxDistance = 32.0;
 
     unsigned long lastStepTime = 0;
 
