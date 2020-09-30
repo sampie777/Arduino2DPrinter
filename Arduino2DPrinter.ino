@@ -23,11 +23,15 @@ void handleSweep(StepperMotor *stpMotor) {
     if (!stpMotor->sweep) return;
 
     if (stpMotor->getCurrentStep() >= stpMotor->getMaxStep()) {
-        Serial.println("[Main] Sweep down");
+        Serial.print("[Main] ");
+        Serial.print(stpMotor->name);
+        Serial.println(": Sweep down");
         stpMotor->targetStep = 0;
         return;
     } else if (stpMotor->getCurrentStep() == 0) {
-        Serial.println("[Main] Sweep up");
+        Serial.print("[Main] ");
+        Serial.print(stpMotor->name);
+        Serial.println(": Sweep up");
         stpMotor->targetStep = stpMotor->getMaxStep();
         return;
     }
