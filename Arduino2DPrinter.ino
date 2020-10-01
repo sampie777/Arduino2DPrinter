@@ -18,7 +18,7 @@ StepperMotor stepperMotorY(SM_Y_COIL_A,
                            SM_Y_COIL_D,
                            SM_Y_ENDPOINT_SENSOR_PIN,
                            'Y',
-                           14000, 2135, 108.0);
+                           25500, 2135, 131.14);
 
 StepperMotorBipolar stepperMotorZ(SM_Z_COIL_A,
                                   SM_Z_COIL_B,
@@ -26,7 +26,7 @@ StepperMotorBipolar stepperMotorZ(SM_Z_COIL_A,
                                   SM_Z_COIL_D,
                                   SM_Z_ENDPOINT_SENSOR_PIN,
                                   'Z',
-                                  140, 15000, 32.0);
+                                  140, 5000, 32.0);
 
 
 void handleSweep(StepperMotor *stpMotor) {
@@ -78,7 +78,7 @@ void processSerialCoordinates(const char *buffer) {
     stepperMotorY.targetStep = mmToSteps(&stepperMotorY, value);
 
     value = getNumberFromSerialBuffer(buffer, 11, 4) / 10.0;
-    stepperMotorY.targetStep = mmToSteps(&stepperMotorZ, value);
+    stepperMotorZ.targetStep = mmToSteps(&stepperMotorZ, value);
 
     Serial.println("[Serial] New target steps:");
     Serial.print("\tX = ");
@@ -170,6 +170,8 @@ void processSerialInput() {
     Serial.print("[Serial] Invalid input: ");
     Serial.write(buffer);
     Serial.println();
+    Serial.print("[Serial] Invalid input length: ");
+    Serial.println(length);
 }
 
 void printInfoForMotor(StepperMotor *stpMotor) {
@@ -216,7 +218,7 @@ void handleActionButton() {
 
     digitalWrite(LED_BUILTIN, HIGH);
 
-    stepperMotorX.targetStep = stepperMotorX.getMaxStep() + 2000;
+    stepperMotorX.targetStep = stepperMotorX.getMaxStep() + 3000;
 
     // Ejecet X axis
     while (stepperMotorX.getCurrentStep() < stepperMotorX.targetStep) {
@@ -249,6 +251,7 @@ void setup() {
 }
 
 void loop() {
+    static unsigned long t = 0;
     // Inputs
     processSerialInput();
     handleActionButton();
@@ -259,7 +262,10 @@ void loop() {
     handleSweep(&stepperMotorZ);
 
     // Outputs
-    stepperMotorX.step();
-    stepperMotorY.step();
+    if ((millis() / 10) % 2 == 0) {
+        stepperMotorX.step();
+    } else {
+        stepperMotorY.step();
+    }
     stepperMotorZ.step();
 }

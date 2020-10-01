@@ -28,10 +28,10 @@ void StepperMotorBipolar::blindStep(int8_t direction, uint16_t stepDelay) {
         currentStepCoil = 0x08U;
     }
 
-    digitalWrite(coilA, currentStepCoil & 0x01U);
-    digitalWrite(coilC, currentStepCoil & 0x02U);   // First C
-    digitalWrite(coilB, currentStepCoil & 0x04U);   // Then B
-    digitalWrite(coilD, currentStepCoil & 0x08U);
+    digitalWrite(coilA, currentStepCoil & (0x01U | 0x02U));
+    digitalWrite(coilC, currentStepCoil & (0x02U | 0x04U));   // First C
+    digitalWrite(coilB, currentStepCoil & (0x04U | 0x08U));   // Then B
+    digitalWrite(coilD, currentStepCoil & (0x01U | 0x08U));
 }
 
 void StepperMotorBipolar::step() {

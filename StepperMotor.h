@@ -20,7 +20,7 @@ public:
                  uint8_t endpointSensor,
                  char name,
                  uint16_t maxStep,
-                 uint16_t stepDelay,
+                 unsigned long stepDelay,
                  float maxDistance
     ) : coilA(coilA),
         coilB(coilB),
@@ -57,7 +57,7 @@ public:
 
     virtual uint16_t getMaxStep() const { return maxStep; }
 
-    virtual uint16_t getStepDelay() const { return stepDelay; }
+    virtual unsigned long getStepDelay() const { return stepDelay; }
 
     virtual uint16_t getMaxDistance() const { return maxDistance; }
 
@@ -71,8 +71,11 @@ public:
 
 protected:
     uint16_t currentStep = 0;
-    uint16_t maxStep, stepDelay;
+    uint16_t maxStep;
+    unsigned long stepDelay;
     float maxDistance;
+
+    unsigned long lastStepTime = 0;
 
     int8_t getStepDirectionForTargetStep() const;
 

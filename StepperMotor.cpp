@@ -31,6 +31,12 @@ void StepperMotor::printlnWithIdent(const char c[]){
 void StepperMotor::blindStep(int8_t direction, uint16_t stepDelay) {
     static uint8_t currentStepCoil = 1;
 
+    if (lastStepTime + stepDelay > micros()) {
+        // Wait till last step is complete
+        return;
+    }
+    lastStepTime = micros();
+
     if (direction == SM_STEP_DIRECTION_UP) {
         currentStepCoil <<= 1U;
         currentStep++;
@@ -49,16 +55,14 @@ void StepperMotor::blindStep(int8_t direction, uint16_t stepDelay) {
     digitalWrite(coilB, currentStepCoil & 0x02U);
     digitalWrite(coilC, currentStepCoil & 0x04U);
     digitalWrite(coilD, currentStepCoil & 0x08U);
-
-    delayMicroseconds(stepDelay);
-
-    digitalWrite(coilA, LOW);
-    digitalWrite(coilB, LOW);
-    digitalWrite(coilC, LOW);
-    digitalWrite(coilD, LOW);
 }
 
 void StepperMotor::step(uint8_t force) {
+    if (lastStepTime + stepDelay > micros()) {
+        // Wait till last step is complete
+        return;
+    }
+
     if (currentStep == targetStep) {
         stopAllCoils();
         return;
@@ -72,6 +76,7 @@ void StepperMotor::step(uint8_t force) {
                 printlnWithIdent("Max step reached");
                 stopAllCoils();
                 announceTargetReached();
+                targetStep = currentStep;
                 return;
             }
         } else {

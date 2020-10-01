@@ -17,7 +17,7 @@ public:
                         uint8_t endpointSensor,
                         char name,
                         uint16_t maxStep,
-                        uint16_t stepDelay,
+                        unsigned long stepDelay,
                         float maxDistance) : StepperMotor(coilA,
                                                           coilB,
                                                           coilC,
@@ -33,7 +33,7 @@ public:
 
     uint16_t getMaxStep() const override { return maxStep; }
 
-    uint16_t getStepDelay() const override { return stepDelay; }
+    unsigned long getStepDelay() const override { return stepDelay; }
 
     float getStepsPerMm() const override { return maxStep / maxDistance; }
 
