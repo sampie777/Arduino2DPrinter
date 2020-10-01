@@ -262,10 +262,7 @@ void loop() {
     handleSweep(&stepperMotorZ);
 
     // Outputs
-    if ((millis() / 10) % 2 == 0) {
-        stepperMotorX.step();
-    } else {
-        stepperMotorY.step();
-    }
+    stepperMotorX.step();
+    stepperMotorY.step();
     stepperMotorZ.step();
 }

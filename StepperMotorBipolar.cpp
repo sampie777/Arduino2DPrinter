@@ -6,8 +6,6 @@
 
 
 void StepperMotorBipolar::blindStep(int8_t direction, uint16_t stepDelay) {
-    static uint8_t currentStepCoil = 1;
-
     if (lastStepTime + stepDelay > micros()) {
         // Wait till last step is complete
         return;
@@ -15,30 +13,21 @@ void StepperMotorBipolar::blindStep(int8_t direction, uint16_t stepDelay) {
     lastStepTime = micros();
 
     if (direction == SM_STEP_DIRECTION_UP) {
-        currentStepCoil <<= 1U;
+        currentStepCoil <<= 1;
         currentStep++;
     } else {
-        currentStepCoil >>= 1U;
+        currentStepCoil >>= 1;
         currentStep--;
     }
 
-    if (currentStepCoil > 0x08U) {
+    if (currentStepCoil > 8) {
         currentStepCoil = 1;
     } else if (currentStepCoil == 0) {
-        currentStepCoil = 0x08U;
+        currentStepCoil = 8;
     }
 
-    digitalWrite(coilA, currentStepCoil & (0x01U | 0x02U));
-    digitalWrite(coilC, currentStepCoil & (0x02U | 0x04U));   // First C
-    digitalWrite(coilB, currentStepCoil & (0x04U | 0x08U));   // Then B
-    digitalWrite(coilD, currentStepCoil & (0x01U | 0x08U));
-}
-
-void StepperMotorBipolar::step() {
-    if (lastStepTime + stepDelay > micros()) {
-        // Wait till last step is complete
-        return;
-    }
-
-    StepperMotor::step();
+    digitalWrite(coilA, currentStepCoil & (1 | 2));
+    digitalWrite(coilC, currentStepCoil & (2 | 4));   // First C
+    digitalWrite(coilB, currentStepCoil & (4 | 8));   // Then B
+    digitalWrite(coilD, currentStepCoil & (8 | 1));
 }

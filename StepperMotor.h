@@ -9,7 +9,7 @@
 
 #define SM_STEPS_PER_REVOLUTION 2052
 #define SM_STEP_DIRECTION_UP 1
-#define SM_STEP_DIRECTION_DOWN -1
+#define SM_STEP_DIRECTION_DOWN (-1)
 
 class StepperMotor {
 public:
@@ -76,6 +76,7 @@ protected:
     float maxDistance;
 
     unsigned long lastStepTime = 0;
+    uint8_t currentStepCoil = 1;
 
     int8_t getStepDirectionForTargetStep() const;
 

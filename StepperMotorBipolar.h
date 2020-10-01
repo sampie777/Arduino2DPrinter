@@ -29,8 +29,6 @@ public:
                                                           maxDistance) {}
 
 
-    void step() override;
-
     uint16_t getMaxStep() const override { return maxStep; }
 
     unsigned long getStepDelay() const override { return stepDelay; }
@@ -38,10 +36,7 @@ public:
     float getStepsPerMm() const override { return maxStep / maxDistance; }
 
 protected:
-    unsigned long lastStepTime = 0;
-
     void blindStep(int8_t direction, uint16_t stepDelay) override;
-
 };
 
 
