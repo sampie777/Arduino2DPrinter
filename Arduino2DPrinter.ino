@@ -160,9 +160,9 @@ void processSerialInput() {
 
     if (buffer[0] == 'f') {
         Serial.println("[Serial] Finding start point position...");
+        stepperMotorZ.findResetPosition();
         stepperMotorX.findResetPosition();
         stepperMotorY.findResetPosition();
-        stepperMotorZ.findResetPosition();
         Serial.println("[Serial] done");
         return;
     }
@@ -243,9 +243,9 @@ void setup() {
 
     printSystemInfo();
 
+    stepperMotorZ.findResetPosition();
     stepperMotorX.findResetPosition();
     stepperMotorY.findResetPosition();
-    stepperMotorZ.findResetPosition();
 
     Serial.println("[Main] Boot done.");
 }
